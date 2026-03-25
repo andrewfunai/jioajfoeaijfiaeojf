@@ -224,7 +224,19 @@ async def event_stream(query: str) -> AsyncGenerator[str, None]:
     # Signal end of results
     yield f"data: {json.dumps({'type': 'done', 'total': len(cards)})}\n\n"
 
-
+@app.get("/mcp")
+async def list_tools():
+    return {
+        "tools": [{
+            "name": "opencaselist_search",
+            "description": "Search OpenCaselist debate evidence", 
+            "inputSchema": {
+                "type": "object",
+                "properties": {"query": {"type": "string"}},
+                "required": ["query"]
+            }
+        }]
+    }
 @app.get("/mcp-sse")
 async def mcp_sse(query: str = ""):
     """
@@ -287,4 +299,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run(
+        "server:app", 
+        host="0.0.0.0", 
+        port=8443,
+        ssl_keyfile="key.pem",
+        ssl_certfile="cert.pem",
+        reload=False
+    )
